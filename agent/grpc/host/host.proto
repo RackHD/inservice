@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package host;
+
+service Host {
+    rpc Start(StartRequest) returns (StartResponse) {}
+    rpc Stop(StopRequest) returns (StopResponse) {}
+    rpc Status(StatusRequest) returns (stream StatusResponse) {}
+}
+
+message StartRequest {
+    string name = 1;
+}
+
+message StartResponse {
+}
+
+message StopRequest {
+    string name = 1;
+}
+
+message StopResponse {
+}
+
+message StatusRequest {
+}
+
+message StatusResponse {
+    string name = 1;
+    string status = 2;
+}

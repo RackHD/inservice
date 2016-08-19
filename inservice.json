@@ -1,0 +1,27 @@
+{
+    "agent": {
+        "grpc": {
+            "address": "127.0.0.1",
+            "port": 8080
+        },
+        "http": {
+            "address": "127.0.0.1",
+            "port": 8081,
+            "uri": "inservice"
+        },
+        "ssdp": {
+            "serviceType": "urn:skunkworxs:inservice:agent:0",
+            "maxAge": 3600,
+            "cacheFile": ".inservice-agent.uuid"
+        }
+    },
+    "plugins": {
+        "inservice-lldp": {
+            "port": 8082,
+            "interfaces": ["eth0"]
+        },
+        "inservice-catalog-compute": {
+            "port": 8084
+        }
+    }
+}
