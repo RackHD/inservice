@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/RackHD/InService/plugins/lldp/grpc/lldp"
+	"github.com/RackHD/inservice/plugins/lldp/grpc/lldp"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"io"

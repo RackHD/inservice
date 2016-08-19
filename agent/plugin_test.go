@@ -3,8 +3,8 @@ package plugins_test
 import (
 	"fmt"
 
-	. "github.com/RackHD/InService/agent"
-	"github.com/RackHD/InService/agent/grpc/plugin"
+	. "github.com/RackHD/inservice/agent"
+	"github.com/RackHD/inservice/agent/grpc/plugin"
 	"golang.org/x/net/context"
 
 	. "github.com/onsi/ginkgo"

@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/RackHD/InService/cmd/cli/cmd"
+import "github.com/RackHD/inservice/cmd/cli/cmd"
 
 func main() {
 	cmd.Execute()

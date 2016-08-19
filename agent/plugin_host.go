@@ -10,7 +10,7 @@ import (
 
 	"golang.org/x/net/context"
 
-	"github.com/RackHD/InService/agent/grpc/host"
+	"github.com/RackHD/inservice/agent/grpc/host"
 )
 
 // PluginResponseTimeout sets the maximum duration allowed to respond to a request

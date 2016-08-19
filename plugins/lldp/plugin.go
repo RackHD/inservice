@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/RackHD/InService/plugins/lldp/grpc/lldp"
-	"github.com/RackHD/InService/plugins/lldp/neighbors"
+	"github.com/RackHD/inservice/plugins/lldp/grpc/lldp"
+	"github.com/RackHD/inservice/plugins/lldp/neighbors"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
 	"golang.org/x/net/context"

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/RackHD/InService/agent/grpc/host"
+	"github.com/RackHD/inservice/agent/grpc/host"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"

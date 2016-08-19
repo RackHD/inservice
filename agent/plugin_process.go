@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/RackHD/InService/agent/grpc/plugin"
+	"github.com/RackHD/inservice/agent/grpc/plugin"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"

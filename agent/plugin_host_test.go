@@ -1,7 +1,7 @@
 package plugins_test
 
 import (
-	. "github.com/RackHD/InService/agent"
+	. "github.com/RackHD/inservice/agent"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

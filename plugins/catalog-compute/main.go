@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/RackHD/InService/agent"
+	"github.com/RackHD/inservice/agent"
 	"github.com/spf13/viper"
 )
 

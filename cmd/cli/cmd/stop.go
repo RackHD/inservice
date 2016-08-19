@@ -7,7 +7,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/RackHD/InService/agent/grpc/host"
+	"github.com/RackHD/inservice/agent/grpc/host"
 	"github.com/spf13/cobra"
 )
 

@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/RackHD/InService/agent"
+	"github.com/RackHD/inservice/agent"
 )
 
 // PluginServer provides PluginHost configuration and management.

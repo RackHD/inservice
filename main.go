@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/RackHD/InService/uuid"
+	"github.com/RackHD/inservice/uuid"
 	"github.com/spf13/viper"
 )
 

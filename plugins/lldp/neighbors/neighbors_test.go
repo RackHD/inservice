@@ -1,7 +1,7 @@
 package neighbors_test
 
 import (
-	. "github.com/RackHD/InService/plugins/lldp/neighbors"
+	. "github.com/RackHD/inservice/plugins/lldp/neighbors"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	. "github.com/onsi/ginkgo"

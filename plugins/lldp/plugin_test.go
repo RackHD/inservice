@@ -1,7 +1,7 @@
 package main_test
 
 import (
-	. "github.com/RackHD/InService/plugins/lldp"
+	. "github.com/RackHD/inservice/plugins/lldp"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
