@@ -4,7 +4,7 @@ test_args = -cover -race -trace -randomizeAllSpecs
 
 # Linter Arguments
 #	dupl linter appears to identify errors inaccurately.
-lint_args = --vendor --fast --disable=dupl --skip=grpc ./...
+lint_args = --vendor --fast --disable=dupl --disable=gas --skip=grpc ./...
 
 default: test
 

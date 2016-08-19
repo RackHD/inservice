@@ -1,5 +1,5 @@
 # Build Output Directory
-GOOUT ?= $(GOPATH)/bin
+GOOUT ?= ./bin
 
 # Test Arguments
 test_args = -cover -race -trace -randomizeAllSpecs
@@ -26,7 +26,7 @@ LDFLAGS = -ldflags "-X '$(PKGPATH)/cmd.binaryName=$(NAME)'\
 
 # Linter Arguments
 #	dupl linter appears to identify errors inaccurately.
-lint_args = --vendor --fast --disable=dupl --skip=grpc ./...
+lint_args = --vendor --fast --disable=dupl --disable=gotype --skip=grpc ./...
 
 default: test
 
@@ -38,7 +38,7 @@ deps:
 	go get ./...
 
 build: lint
-	go build -o $(GOOUT)/$(NAME) $(LDFLAGS) *.go
+	go build -o $(GOOUT)/$(NAME) *.go
 
 lint:
 	gometalinter $(lint_args)
