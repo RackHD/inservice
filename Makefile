@@ -81,7 +81,7 @@ test:
 	@${DOCKER_CMD} make test-local
 
 test-local: lint-local
-	@ginkgo -race -trace -cover -randomizeAllSpecs --slowSpecThreshold=${SLOWTEST}
+	@ginkgo -r -race -trace -cover -randomizeAllSpecs --slowSpecThreshold=${SLOWTEST}
 
 grpc:
 	@${DOCKER_CMD} make grpc-local
