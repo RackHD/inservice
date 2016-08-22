@@ -38,6 +38,13 @@ SLOWTEST = 10
 
 default: deps grpc test build
 
+coveralls:
+	@go get github.com/mattn/goveralls
+	@go get github.com/modocache/gover
+	@go get golang.org/x/tools/cmd/cover
+	@gover
+	@goveralls -coverprofile=gover.coverprofile -service=travis-ci
+
 shell:
 	@${DOCKER_CMD} /bin/bash
 
@@ -85,7 +92,7 @@ grpc-local:
 	protoc -I ./agent/grpc/plugin ./agent/grpc/plugin/plugin.proto --go_out=plugins=grpc:agent/grpc/plugin
 	rm -f ./agent/grpc/host/host.pb.go
 	protoc -I ./agent/grpc/host ./agent/grpc/host/host.proto --go_out=plugins=grpc:agent/grpc/host
-	
+
 	#LLDP's GRPC
 	rm -f ./plugins/lldp/grpc/lldp/lldp.pb.go
 	protoc -I ./plugins/lldp/grpc/lldp ./plugins/lldp/grpc/lldp/lldp.proto --go_out=plugins=grpc:plugins/lldp/grpc/lldp
