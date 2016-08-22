@@ -41,6 +41,8 @@ default: deps grpc test build
 shell:
 	@${DOCKER_CMD} /bin/bash
 
+clean:
+	@${DOCKER_CMD} make clean-local
 
 clean-local:
 	@rm -rf bin vendor
