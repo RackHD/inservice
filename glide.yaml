@@ -1,0 +1,17 @@
+package: github.com/RackHD/inservice
+import:
+- package: github.com/golang/protobuf
+  subpackages:
+  - proto
+- package: github.com/google/gopacket
+  subpackages:
+  - layers
+  - pcap
+- package: github.com/king-jam/gossdp
+- package: github.com/spf13/cobra
+- package: github.com/spf13/viper
+- package: github.com/twinj/uuid
+- package: golang.org/x/net
+  subpackages:
+  - context
+- package: google.golang.org/grpc

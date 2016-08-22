@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package lldp;
+
+service Lldp {
+  rpc ListInterfaces(EmptyMessage) returns (stream Interface) {}
+  rpc GetInterfaceDetails(Interface) returns (Interface) {}
+  rpc ListInterfaceNeighbors(Interface) returns (stream Neighbor) {}
+  rpc ListNeighbors(EmptyMessage) returns (stream Neighbor) {}
+}
+
+message EmptyMessage{
+}
+
+message Neighbor {
+  string portid = 1;
+  string portdescription = 2;
+  string sysname = 3;
+  string sysdesc = 4;
+  string address = 5;
+  string vlan = 6;
+  string type = 7;
+}
+
+message Interface {
+  int32 index = 1;
+  int32 mtu = 2;
+  string name = 3;
+  string hardwareaddr = 4;
+  uint32 flags = 5;
+}

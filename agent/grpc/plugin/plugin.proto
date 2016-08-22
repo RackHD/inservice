@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package plugin;
+
+service Plugin {
+    rpc Start(StartRequest) returns (StartResponse) {}
+    rpc Stop(StopRequest) returns (StopResponse) {}
+    rpc Status(StatusRequest) returns (StatusResponse) {}
+}
+
+message StartRequest {
+}
+
+message StartResponse {
+}
+
+message StopRequest {
+}
+
+message StopResponse {
+}
+
+message StatusRequest {
+}
+
+message StatusResponse {
+}
