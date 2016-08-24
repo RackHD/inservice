@@ -1,6 +1,8 @@
 ORGANIZATION = RackHD
 PROJECT = inservice
 
+GOOUT = bin
+
 SHELL = /bin/bash
 
 TTY = $(shell if [ -t 0 ]; then echo "-ti"; fi)
@@ -97,10 +99,3 @@ grpc-local:
 	rm -f ./plugins/lldp/grpc/lldp/lldp.pb.go
 	protoc -I ./plugins/lldp/grpc/lldp ./plugins/lldp/grpc/lldp/lldp.proto --go_out=plugins=grpc:plugins/lldp/grpc/lldp
 
-
-release: deps grpc build
-	@docker build -t rackhd/${APPLICATION} .
-	@docker build -t rackhd/ssdpspoofer cmd/ssdpspoofer/
-
-run: release
-	@docker-compose up --force-recreate
