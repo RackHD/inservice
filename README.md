@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/RackHD/inservice.svg?branch=master)](https://travis-ci.org/RackHD/inservice)
 [![Coverage Status](https://coveralls.io/repos/github/RackHD/inservice/badge.svg?branch=master)](https://coveralls.io/github/RackHD/inservice?branch=master)
+[![GoDoc](https://godoc.org/github.com/RackHD/inservice?status.svg)](https://godoc.org/github.com/RackHD/inservice)
 
 # InService
 
@@ -47,7 +48,7 @@ We also have a #InfraEnablers Slack channel: You can get an invite by requesting
 Documentation
 -------------
 
-TODO:
+You can find documentation for InService here: [![GoDoc](https://godoc.org/github.com/RackHD/inservice?status.svg)](https://godoc.org/github.com/RackHD/inservice)
 
 Licensing
 ---------
