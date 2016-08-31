@@ -10,6 +10,7 @@ import (
 	"github.com/RackHD/inservice/plugins/lldp/grpc/lldp"
 	"github.com/RackHD/inservice/plugins/lldp/neighbors"
 	"github.com/google/gopacket"
+	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -171,7 +172,17 @@ func (p *LLDPPlugin) openInterface(iface net.Interface) error {
 			p.wg.Done()
 			return nil
 		case packet = <-in:
+			CheckHost(packet)
 			p.packets <- neighbors.Packet{Iface: iface, Packet: packet}
+
 		}
 	}
+}
+
+// CheckHost is....
+func CheckHost(packet gopacket.Packet) error {
+	if cdp := packet.Layer(layers.LayerTypeCiscoDiscoveryInfo); cdp != nil {
+		fmt.Println("This is a cdp packet!")
+	}
+	return nil
 }
