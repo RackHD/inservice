@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"sync"
 	"time"
 
@@ -37,7 +39,7 @@ type SwitchInfo struct {
 	Vlan            string                 `json:"vlan"`
 	MgmtAddress     []net.IP               `json:"ip_mgmt_addr"`
 	Capabilities    layers.CDPCapabilities `json:"system_cap"`
-	SrcMAC          net.HardwareAddr       `json:"mac"`
+	SrcMAC          string                 `json:"mac"`
 	MDI             bool                   `json:"mdi_power"` // MDI naming is mapped from LLDP spec for MDI pwr to CDP POE
 	LinkAggregation bool                   `json:"link_aggregation"`
 }
@@ -175,6 +177,7 @@ func (p *LLDPPlugin) openInterface(iface net.Interface) error {
 	}
 	src := gopacket.NewPacketSource(handle, handle.LinkType())
 	in := src.Packets()
+
 	for {
 		var packet gopacket.Packet
 		select {
@@ -184,27 +187,54 @@ func (p *LLDPPlugin) openInterface(iface net.Interface) error {
 			p.wg.Done()
 			return nil
 		case packet = <-in:
-			CheckHost(packet)
-			fmt.Printf("%+v\n", packet)
+
 			p.packets <- neighbors.Packet{Iface: iface, Packet: packet}
+
+			// TODO don't ignore the error from this call
+			file, err := os.OpenFile("capture.json", os.O_CREATE|os.O_WRONLY, 0666)
+			if err != nil {
+				fmt.Printf("Error opening file: %s\n", err)
+				continue
+			}
+
+			// Extract data from packet
+			s, err := ExtractSwitchConfig(packet)
+			if s == nil {
+				continue
+			}
+
+			if err != nil {
+				fmt.Printf("Error extracting: %s\n", err)
+				continue
+			}
+			//fmt.Printf("Switch data: %+v\n", s)
+
+			// Write data to file
+			j, _ := json.Marshal(s)
+			_, err = file.WriteString(string(j))
+			fmt.Printf("String to file: %s\n", string(j))
+
+			if err != nil {
+				fmt.Printf("Error writing to file: %s\n", err)
+				file.Close()
+				continue
+			}
+			//fmt.Printf("Packet dump: %+v\n", packet)
+			file.Close()
 
 		}
 	}
 }
 
-// CheckHost is....
-func CheckHost(packet gopacket.Packet) error {
-	s := &SwitchInfo{}
-	if ethLayer := packet.Layer(layers.LayerTypeEthernet); ethLayer != nil {
-		eth, _ := ethLayer.(*layers.Ethernet)
-		s.SrcMAC = eth.SrcMAC
-	}
+// ExtractSwitchConfig is....
+func ExtractSwitchConfig(packet gopacket.Packet) (*SwitchInfo, error) {
+
 	if cdpLayer := packet.Layer(layers.LayerTypeCiscoDiscoveryInfo); cdpLayer != nil {
-		fmt.Println("This is a cdp packet!")
+		s := &SwitchInfo{}
+
 		cdp, _ := cdpLayer.(*layers.CiscoDiscoveryInfo)
 		cap := cdp.Capabilities
 		if !cap.IsHost && cap.L2Switch && !cap.L3Router {
-			fmt.Println("Not a host :) but it is a switch yet isn't a router")
 			s.SysName = cdp.SysName
 			s.PortID = cdp.PortID
 			s.Vlan = ""
@@ -212,10 +242,19 @@ func CheckHost(packet gopacket.Packet) error {
 			s.Capabilities = cap
 			s.MDI = cdp.SparePairPoe.PSEFourWire
 			s.LinkAggregation = false
-			fmt.Printf("SwitchInfo => %+v\n", *s)
+			if ethLayer := packet.Layer(layers.LayerTypeEthernet); ethLayer != nil {
+				eth, _ := ethLayer.(*layers.Ethernet)
+				var mac string
+				for i, b := range eth.SrcMAC {
+					if i != 0 {
+						mac = mac + ":"
+					}
+					mac = mac + fmt.Sprintf("%2.2X", b)
+				}
+				s.SrcMAC = mac
+			}
+			return s, nil
 		}
-	} else {
-		fmt.Println("Not a cdp packet!")
 	}
-	return nil
+	return nil, nil
 }
