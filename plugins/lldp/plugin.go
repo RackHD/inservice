@@ -30,6 +30,18 @@ type LLDPPlugin struct {
 	Neighbors   neighbors.Neighbors
 }
 
+//SwitchInfo is a object struct
+type SwitchInfo struct {
+	SysName         string                 `json:"system_name"`
+	PortID          string                 `json:"port_name"`
+	Vlan            string                 `json:"vlan"`
+	MgmtAddress     []net.IP               `json:"ip_mgmt_addr"`
+	Capabilities    layers.CDPCapabilities `json:"system_cap"`
+	SrcMAC          net.HardwareAddr       `json:"mac"`
+	MDI             bool                   `json:"mdi_power"` // MDI naming is mapped from LLDP spec for MDI pwr to CDP POE
+	LinkAggregation bool                   `json:"link_aggregation"`
+}
+
 // NewLLDPPlugin initializes a new LLDPPlugin struct.
 func NewLLDPPlugin(address string, port int, interfaces []string) (*LLDPPlugin, error) {
 	if ip := net.ParseIP(address); ip == nil {
@@ -182,9 +194,26 @@ func (p *LLDPPlugin) openInterface(iface net.Interface) error {
 
 // CheckHost is....
 func CheckHost(packet gopacket.Packet) error {
-	if cdp := packet.Layer(layers.LayerTypeCiscoDiscoveryInfo); cdp != nil {
+	s := &SwitchInfo{}
+	if ethLayer := packet.Layer(layers.LayerTypeEthernet); ethLayer != nil {
+		eth, _ := ethLayer.(*layers.Ethernet)
+		s.SrcMAC = eth.SrcMAC
+	}
+	if cdpLayer := packet.Layer(layers.LayerTypeCiscoDiscoveryInfo); cdpLayer != nil {
 		fmt.Println("This is a cdp packet!")
-		fmt.Printf("Packet Bytes %+v\n\n\n", packet.Data())
+		cdp, _ := cdpLayer.(*layers.CiscoDiscoveryInfo)
+		cap := cdp.Capabilities
+		if !cap.IsHost && cap.L2Switch && !cap.L3Router {
+			fmt.Println("Not a host :) but it is a switch yet isn't a router")
+			s.SysName = cdp.SysName
+			s.PortID = cdp.PortID
+			s.Vlan = ""
+			s.MgmtAddress = cdp.MgmtAddresses
+			s.Capabilities = cap
+			s.MDI = cdp.SparePairPoe.PSEFourWire
+			s.LinkAggregation = false
+			fmt.Printf("SwitchInfo => %+v\n", *s)
+		}
 	} else {
 		fmt.Println("Not a cdp packet!")
 	}
