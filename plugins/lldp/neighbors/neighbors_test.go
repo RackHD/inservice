@@ -41,7 +41,32 @@ var _ = Describe("Neighbors", func() {
 		)
 		iface = net.Interface{Index: 1, MTU: 1500, Name: "eth0", HardwareAddr: []byte{00, 50, 56, 99, 49, 190}, Flags: 19}
 		packet = Packet{Iface: iface, Packet: gopacket}
+
+		cdp = []byte{1, 0, 12, 204, 204, 204, 0, 80, 86, 153, 78, 253, 0, 235, 170, 170, 3, 0,
+			0, 12, 32, 0, 2, 180, 18, 138, 0, 1, 0, 31, 115, 119, 105, 116, 99, 104, 40, 49, 50, 51,
+			49, 57, 52, 57, 53, 48, 51, 49, 52, 55, 50, 53, 57, 48, 48, 53, 41, 0, 2, 0, 17, 0, 0,
+			0, 1, 1, 1, 204, 0, 4, 10, 240, 16, 50, 0, 3, 0, 12, 99, 111, 110, 116, 114, 111, 108,
+			48, 0, 4, 0, 8, 0, 0, 0, 40, 0, 5, 0, 73, 67, 105, 115, 99, 111, 32, 78, 101, 120, 117,
+			115, 32, 79, 112, 101, 114, 97, 116, 105, 110, 103, 32, 83, 121, 115, 116, 101, 109, 32,
+			40, 78, 88, 45, 79, 83, 41, 32, 83, 111, 102, 116, 119, 97, 114, 101, 44, 32, 86, 101,
+			114, 115, 105, 111, 110, 32, 53, 46, 50, 40, 49, 41, 83, 86, 51, 40, 50, 46, 49, 41, 0, 6,
+			0, 14, 78, 101, 120, 117, 115, 49, 48, 48, 48, 86, 0, 18, 0, 5, 0, 0, 19, 0, 5, 0, 0, 11,
+			0, 5, 1, 0, 17, 0, 8, 0, 0, 5, 220, 0, 20, 0, 10, 115, 119, 105, 116, 99, 104, 0, 21, 0,
+			18, 6, 12, 43, 6, 1, 4, 1, 9, 12, 3, 1, 3, 134, 72, 0, 22, 0, 17, 0, 0, 0, 1, 1, 1, 204,
+			0, 4, 10, 240, 16, 50}
+		cdpGopacket := gopacket.NewPacket(
+			cdpData,
+			layers.LinkTypeEthernet,
+			cdpGopacket.DecodeOptions{
+				Lazy:               true,
+				NoCopy:             true,
+				SkipDecodeRecovery: false},
+		)
+		cdpIface = net.Interface{Index: 1, MTU: 1500, Name: "eth0", HardwareAddr: []byte{00, 50, 56, 99, 49, 190}, Flags: 19}
+		cdpPacket = Packet{Iface: cdpIface, Packet: cdpGopacket}
+
 		wg = &sync.WaitGroup{}
+
 	})
 
 	JustBeforeEach(func() {
@@ -61,6 +86,15 @@ var _ = Describe("Neighbors", func() {
 			It("should decode a fake packet", func() {
 				wg.Add(1)
 				neighbors.ProcessPacket(wg, packet)
+				neighbors.Rw.Lock()
+				defer neighbors.Rw.Unlock()
+				Expect(len(neighbors.Interfaces["eth0"])).Should(Equal(1))
+			})
+		})
+		Context("when a good cdpPacket is received", func() {
+			It("should decode a fake packet", func() {
+				wg.Add(1)
+				neighbors.ProcessPacket(wg, cdpPacket)
 				neighbors.Rw.Lock()
 				defer neighbors.Rw.Unlock()
 				Expect(len(neighbors.Interfaces["eth0"])).Should(Equal(1))

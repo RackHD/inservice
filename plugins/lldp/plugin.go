@@ -157,7 +157,7 @@ func (p *LLDPPlugin) openInterface(iface net.Interface) error {
 		return err
 	}
 	defer handle.Close()
-	err = handle.SetBPFFilter("ether proto 0x88cc")
+	err = handle.SetBPFFilter("ether host 01:00:0c:cc:cc:cc and ether[16:4] = 0x0300000C and ether[20:2] == 0x2000")
 	if err != nil {
 		return err
 	}
@@ -173,6 +173,7 @@ func (p *LLDPPlugin) openInterface(iface net.Interface) error {
 			return nil
 		case packet = <-in:
 			CheckHost(packet)
+			fmt.Printf("%+v\n", packet)
 			p.packets <- neighbors.Packet{Iface: iface, Packet: packet}
 
 		}
@@ -183,6 +184,9 @@ func (p *LLDPPlugin) openInterface(iface net.Interface) error {
 func CheckHost(packet gopacket.Packet) error {
 	if cdp := packet.Layer(layers.LayerTypeCiscoDiscoveryInfo); cdp != nil {
 		fmt.Println("This is a cdp packet!")
+		fmt.Printf("Packet Bytes %+v\n\n\n", packet.Data())
+	} else {
+		fmt.Println("Not a cdp packet!")
 	}
 	return nil
 }
