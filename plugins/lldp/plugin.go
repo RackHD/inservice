@@ -32,8 +32,22 @@ type LLDPPlugin struct {
 	Neighbors   neighbors.Neighbors
 }
 
-//SwitchInfo is a object struct
-type SwitchInfo struct {
+//SwitchInfoLLDP is a object struct
+type SwitchInfoLLDP struct {
+	SwitchProto     string                  `json:"switch_proto"`
+	SysName         string                  `json:"system_name"`
+	PortID          string                  `json:"port_name"`
+	Vlan            string                  `json:"vlan"`
+	MgmtAddress     []byte                  `json:"ip_mgmt_addr"`
+	Capabilities    layers.LLDPCapabilities `json:"system_cap"`
+	SrcMAC          string                  `json:"mac"`
+	MDI             bool                    `json:"mdi_power"` // MDI naming is mapped from LLDP spec for MDI pwr to CDP POE
+	LinkAggregation bool                    `json:"link_aggregation"`
+}
+
+//SwitchInfoCDP is a object struct
+type SwitchInfoCDP struct {
+	SwitchProto     string                 `json:"switch_proto"`
 	SysName         string                 `json:"system_name"`
 	PortID          string                 `json:"port_name"`
 	Vlan            string                 `json:"vlan"`
@@ -171,7 +185,8 @@ func (p *LLDPPlugin) openInterface(iface net.Interface) error {
 		return err
 	}
 	defer handle.Close()
-	err = handle.SetBPFFilter("ether host 01:00:0c:cc:cc:cc and ether[16:4] = 0x0300000C and ether[20:2] == 0x2000")
+	//err = handle.SetBPFFilter("ether host 01:00:0c:cc:cc:cc and ether[16:4] = 0x0300000C and ether[20:2] == 0x2000")
+	err = handle.SetBPFFilter("ether proto 0x88cc")
 	if err != nil {
 		return err
 	}
@@ -190,7 +205,6 @@ func (p *LLDPPlugin) openInterface(iface net.Interface) error {
 
 			p.packets <- neighbors.Packet{Iface: iface, Packet: packet}
 
-			// TODO don't ignore the error from this call
 			file, err := os.OpenFile("capture.json", os.O_CREATE|os.O_WRONLY, 0666)
 			if err != nil {
 				fmt.Printf("Error opening file: %s\n", err)
@@ -198,19 +212,22 @@ func (p *LLDPPlugin) openInterface(iface net.Interface) error {
 			}
 
 			// Extract data from packet
-			s, err := ExtractSwitchConfig(packet)
-			if s == nil {
-				continue
-			}
+			//s, err := ExtractCDP(packet)
+			//if s == nil {
+			//	continue
+			//}
 
-			if err != nil {
-				fmt.Printf("Error extracting: %s\n", err)
-				continue
-			}
+			//if err != nil {
+			//	fmt.Printf("Error extracting: %s\n", err)
+			//	continue
+			//}
 			//fmt.Printf("Switch data: %+v\n", s)
-
+			s, err := ExtractLLDP(packet)
 			// Write data to file
-			j, _ := json.Marshal(s)
+			j, err := json.Marshal(s)
+			if err != nil {
+				log.Printf("error formatting json => %s", err)
+			}
 			_, err = file.WriteString(string(j))
 			fmt.Printf("String to file: %s\n", string(j))
 
@@ -219,18 +236,54 @@ func (p *LLDPPlugin) openInterface(iface net.Interface) error {
 				file.Close()
 				continue
 			}
-			//fmt.Printf("Packet dump: %+v\n", packet)
+			fmt.Printf("Packet dump: %+v\n", packet)
 			file.Close()
 
 		}
 	}
 }
 
-// ExtractSwitchConfig is....
-func ExtractSwitchConfig(packet gopacket.Packet) (*SwitchInfo, error) {
+// ExtractLLDP is...
+func ExtractLLDP(packet gopacket.Packet) (*SwitchInfoLLDP, error) {
+
+	if lldpLayer := packet.Layer(layers.LayerTypeLinkLayerDiscoveryInfo); lldpLayer != nil {
+		s := &SwitchInfoLLDP{}
+
+		lldp, _ := lldpLayer.(*layers.LinkLayerDiscoveryInfo)
+		lldp8021, err := lldp.Decode8021()
+		if err != nil {
+			s.LinkAggregation = lldp8021.LinkAggregation.Enabled
+		}
+		lldpcap := lldp.SysCapabilities.SystemCap
+		if !lldpcap.Router && lldpcap.Bridge { //TODO tcp dump a packet or lldp dump a packet
+			s.SysName = lldp.SysName
+			s.PortID = lldp.PortDescription
+			s.Vlan = ""
+			s.MgmtAddress = lldp.MgmtAddress.Address
+			s.Capabilities = lldpcap
+			s.MDI = false
+			if ethLayer := packet.Layer(layers.LayerTypeEthernet); ethLayer != nil {
+				eth, _ := ethLayer.(*layers.Ethernet)
+				var mac string
+				for i, b := range eth.SrcMAC {
+					if i != 0 {
+						mac = mac + ":"
+					}
+					mac = mac + fmt.Sprintf("%2.2X", b)
+				}
+				s.SrcMAC = mac
+			}
+			return s, nil
+		}
+	}
+	return nil, nil
+}
+
+// ExtractCDP is....
+func ExtractCDP(packet gopacket.Packet) (*SwitchInfoCDP, error) {
 
 	if cdpLayer := packet.Layer(layers.LayerTypeCiscoDiscoveryInfo); cdpLayer != nil {
-		s := &SwitchInfo{}
+		s := &SwitchInfoCDP{}
 
 		cdp, _ := cdpLayer.(*layers.CiscoDiscoveryInfo)
 		cap := cdp.Capabilities
