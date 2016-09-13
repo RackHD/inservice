@@ -71,6 +71,7 @@ build-local: lint-local
 	@go build -o $(GOOUT)/inservice-lldp $(LDFLAGS) plugins/lldp/*.go
 	@go build -o $(GOOUT)/inservice-catalog-compute $(LDFLAGS) plugins/catalog-compute/*.go
 	@go build -o $(GOOUT)/inservice-cli $(LDFLAGS) cmd/cli/*.go
+	@cp ./inservice.json $(GOOUT)/inservice.json
 
 
 lint:
