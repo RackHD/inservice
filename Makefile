@@ -8,7 +8,7 @@ SHELL = /bin/bash
 TTY = $(shell if [ -t 0 ]; then echo "-ti"; fi)
 
 DOCKER_DIR = /go/src/github.com/${ORGANIZATION}/${PROJECT}
-DOCKER_IMAGE = rackhd/golang:1.7.0-wheezy
+DOCKER_IMAGE = rackhd/golang:1.7.1-wheezy
 DOCKER_CMD = docker run --rm -v ${PWD}:${DOCKER_DIR} ${TTY} -w ${DOCKER_DIR} ${DOCKER_IMAGE}
 
 
