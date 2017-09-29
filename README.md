@@ -4,6 +4,8 @@
 
 # InService
 
+Copyright © 2017 Dell Inc. or its subsidiaries.  All Rights Reserved. 
+
 ## Agent
 
 Compute, network, and storage devices all have different functionality which require different control surfaces and monitoring capabilities.  Many of the required features are not accessible via external interfaces and require services hosted on the host to make functionality accessible. Given the diverse sets of functionality across network, compute and storage systems, a plugin based architecture will allow for the reuse of common functionality amongst devices as well as provide a platform for new plugins to be included in the future.
